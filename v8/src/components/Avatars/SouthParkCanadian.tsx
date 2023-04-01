@@ -101,7 +101,7 @@ export function AvatarSouthParkCanadian({ isActive }: AvatarProps) {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const showRandom = Math.random() > 0.3;
+      const showRandom = Math.random() > 0.2;
 
       if (showRandom) {
         setRandomImage(
@@ -110,9 +110,9 @@ export function AvatarSouthParkCanadian({ isActive }: AvatarProps) {
 
         setTimeout(() => {
           setRandomImage("");
-        }, 1000);
+        }, 750);
       }
-    }, 5000);
+    }, 3000);
 
     return function () {
       clearInterval(interval);
