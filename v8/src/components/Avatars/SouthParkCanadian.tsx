@@ -19,6 +19,8 @@ export function AvatarSouthParkCanadian({ isActive }: AvatarProps) {
     activeBottom: "",
     random: [],
   });
+  const [randomImage, setRandomImage] = useState("");
+
   // Get Data from computed styles
   const cssData = useCssData({
     idle: "--images-idle",
@@ -84,6 +86,39 @@ export function AvatarSouthParkCanadian({ isActive }: AvatarProps) {
     }
   }, [cssData]);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      document.documentElement.style.setProperty(
+        "--random-head-rotation",
+        `${Math.ceil(Math.random() * 40 - 20)}deg`
+      );
+    }, 500);
+
+    return function () {
+      clearInterval(interval);
+    };
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const showRandom = Math.random() > 0.3;
+
+      if (showRandom) {
+        setRandomImage(
+          config.random[Math.floor(Math.random() * config.random.length)] || ""
+        );
+
+        setTimeout(() => {
+          setRandomImage("");
+        }, 1000);
+      }
+    }, 5000);
+
+    return function () {
+      clearInterval(interval);
+    };
+  });
+
   return (
     <>
       {isActive && (
@@ -93,7 +128,6 @@ export function AvatarSouthParkCanadian({ isActive }: AvatarProps) {
             width={200}
             className="active active-top"
             src={config.activeTop}
-            style={{ marginBottom: "10px" }}
           />
 
           <img
@@ -105,7 +139,12 @@ export function AvatarSouthParkCanadian({ isActive }: AvatarProps) {
         </>
       )}
       {!isActive && (
-        <img height={200} width={200} className="idle" src={config.idle} />
+        <img
+          height={200}
+          width={200}
+          className="idle"
+          src={randomImage || config.idle}
+        />
       )}
     </>
   );
