@@ -2,7 +2,7 @@
   --random-head-rotation: 0deg;
 
   --obs-token: "ws://localhost:4455";
-  --obs-source-1: "Mic/Aux";
+  --obs-source-1: "Mic";
 
   --images-active-slice-y: 71;
 
