@@ -28,6 +28,11 @@ export function AvatarSouthParkCanadian({ isActive }: AvatarProps) {
     activeSliceY: "--images-active-slice-y",
     random_1: "--images-random-1",
     random_2: "--images-random-2",
+    random_3: "--images-random-3",
+    random_blink: "--images-random-blink",
+    random_pog: "--images-random-pog",
+    random_wat: "--images-random-wat",
+    random_hmm: "--images-random-hmm",
   });
 
   useEffect(() => {
