@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 
 import OBSWebSocket from "obs-websocket-js";
 const obs = new OBSWebSocket();
@@ -85,6 +85,7 @@ export function Overlay() {
     obsToken: cssData.obs_token,
     sources: [] as string[],
   });
+  const previousToken = useRef("");
 
   useOverlayObsCallbacks(obs, {
     [OBS_EVENTS.ConnectionClosed]: async () => {
@@ -130,8 +131,13 @@ export function Overlay() {
   }, [cssData]);
 
   useEffect(() => {
-    console.log("OBS Disconnecting");
-    if (config.obsToken && typeof config.obsToken === "string") {
+    if (
+      config.obsToken &&
+      typeof config.obsToken === "string" &&
+      config.obsToken !== previousToken.current
+    ) {
+      previousToken.current = config.obsToken;
+      console.log("OBS Disconnecting");
       obs.disconnect();
       const token = new URL(config.obsToken);
       const password = token.password;
