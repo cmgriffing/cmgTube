@@ -11,16 +11,21 @@ import { LocalStorageContext } from "./context/localforage.context";
 
 const localStorage = localforage.createInstance({ name: "pngtube.v8" });
 
-const router = createBrowserRouter([
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <App />,
+    },
+    {
+      path: "/overlay",
+      element: <Overlay />,
+    },
+  ],
   {
-    path: "/",
-    element: <App />,
-  },
-  {
-    path: "/overlay",
-    element: <Overlay />,
-  },
-]);
+    // basename: "/cmgTube",
+  }
+);
 
 import "./index.css";
 
