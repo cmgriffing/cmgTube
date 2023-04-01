@@ -323,7 +323,7 @@ export function App() {
           persist(newInstanceName, {
             obsToken,
             sources: sourceList,
-            assets: assetList,
+            assets: [], // assetList,
           });
         }}
       >
@@ -375,7 +375,7 @@ export function App() {
           persist(selectedInstance, {
             obsToken,
             sources: sourceList,
-            assets: assetList,
+            assets: [], // assetList,
           });
         }}
       >
@@ -444,7 +444,7 @@ export function App() {
                               persist(selectedInstance, {
                                 obsToken,
                                 sources: sourceList,
-                                assets: newAssetList,
+                                assets: [], // newAssetList,
                               });
                             }}
                           >
@@ -471,7 +471,7 @@ export function App() {
                               persist(selectedInstance, {
                                 obsToken,
                                 sources: sourceList,
-                                assets: newAssetList,
+                                assets: [], // newAssetList,
                               });
                             }}
                           />
