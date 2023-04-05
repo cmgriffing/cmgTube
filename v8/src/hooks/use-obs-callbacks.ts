@@ -49,6 +49,7 @@ type OverlayObsCallbacks = Record<
   | OBS_EVENTS.InputVolumeMeters,
   ObsEventCallback
 >;
+
 export function useOverlayObsCallbacks(
   obs: OBSWebSocket,
   callbacks: OverlayObsCallbacks
