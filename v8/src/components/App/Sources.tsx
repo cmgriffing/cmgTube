@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Card, Flex, Button, TextInput, Text } from "@mantine/core";
+import { Card, Flex, Button, TextInput, Text, Select } from "@mantine/core";
 import { modals } from "@mantine/modals";
 
 interface SourcesProps {
@@ -26,18 +26,25 @@ export function Sources({
         <Button
           disabled={!connected}
           onClick={() => {
-            // do something
-            modals.openConfirmModal({
-              title: "Please confirm your action",
+            modals.open({
+              title: "Add Source",
               children: (
-                <Text size="sm">
-                  This action is so important that you are required to confirm
-                  it with a modal. Please click one of these buttons to proceed.
-                </Text>
+                <>
+                  <Select
+                    dropdownPosition="bottom"
+                    label="Sources"
+                    placeholder="Select a Source..."
+                    data={sources.map((source) => {
+                      // list out available sources
+                      // make sure to filter out already used sources
+                      return {};
+                    })}
+                  />
+                  <Button fullWidth onClick={() => modals.closeAll()} mt="md">
+                    Submit
+                  </Button>
+                </>
               ),
-              // labels: { confirm: "Confirm", cancel: "Cancel" },
-              // onCancel: () => console.log("Cancel"),
-              // onConfirm: () => console.log("Confirmed"),
             });
           }}
         >
