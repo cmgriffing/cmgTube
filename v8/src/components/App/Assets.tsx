@@ -234,7 +234,7 @@ export function Assets({
                                 <Component
                                   config={asset?.config}
                                   image={asset?.value}
-                                  onModifyConfig={(value: any) =>
+                                  onModifyConfig={(value: any) => {
                                     newConfig = {
                                       ...asset?.config,
                                       ...value,
