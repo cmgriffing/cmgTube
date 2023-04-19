@@ -14,6 +14,11 @@
   -webkit-text-size-adjust: 100%;
 }
 
+body,
+html {
+  background: rgba(0, 0, 0, 0);
+}
+
 /* https://www.joshwcomeau.com/css/custom-css-reset/ */
 /*
   1. Use a more-intuitive box-sizing model.
@@ -95,4 +100,15 @@ h4,
 h5,
 h6 {
   margin: 0;
+}
+
+/* sr-only */
+.sr-only {
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  overflow: hidden;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
 }

@@ -14,7 +14,7 @@ export function useObsCallbacks(
   callbacks: Partial<ObsCallbacks>
 ) {
   useEffect(() => {
-    console.log("Wiring up OBS Callbacks");
+    // console.log("Wiring up OBS Callbacks");
 
     Object.entries(callbacks).map(([callbackKey, callback]) => {
       obs.on(callbackKey as OBS_EVENTS, callback as any);

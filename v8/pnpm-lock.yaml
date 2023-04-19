@@ -2,6 +2,8 @@ lockfileVersion: 5.4
 
 specifiers:
   '@emotion/react': ^11.10.6
+  '@iconify/icons-tabler': ^1.2.71
+  '@iconify/react': ^4.1.0
   '@loadable/component': ^5.15.3
   '@mantine/core': ^6.0.6
   '@mantine/dropzone': ^6.0.6
@@ -14,7 +16,6 @@ specifiers:
   '@types/react-dom': ^18.0.11
   '@types/styled-components': ^5.1.26
   '@vitejs/plugin-react-swc': ^3.0.0
-  component: link:@types/@loadable/component
   localforage: ^1.10.0
   obs-websocket-js: ^5.0.2
   react: ^18.2.0
@@ -24,9 +25,12 @@ specifiers:
   styled-components: ^5.3.9
   typescript: ^4.9.3
   vite: ^4.2.0
+  zod: ^3.21.4
 
 dependencies:
   '@emotion/react': 11.10.6_k4en7uapxoluuejoeg6o3ic2aa
+  '@iconify/icons-tabler': 1.2.71
+  '@iconify/react': 4.1.0_react@18.2.0
   '@loadable/component': 5.15.3_react@18.2.0
   '@mantine/core': 6.0.6_ktiuplzxx4jfpflqwazef3tiku
   '@mantine/dropzone': 6.0.6_feqrfkte3oaz5jjghkdwfk53i4
@@ -41,6 +45,7 @@ dependencies:
   react-is: 18.2.0
   react-router-dom: 6.9.0_biqbaboplfbrettd7655fr4n2y
   styled-components: 5.3.9_7i5myeigehqah43i5u7wbekgba
+  zod: 3.21.4
 
 devDependencies:
   '@types/loadable__component': 5.13.4
@@ -48,7 +53,6 @@ devDependencies:
   '@types/react-dom': 18.0.11
   '@types/styled-components': 5.1.26
   '@vitejs/plugin-react-swc': 3.2.0_vite@4.2.1
-  component: link:@types/@loadable/component
   typescript: 4.9.5
   vite: 4.2.1
 
@@ -515,6 +519,25 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       tabbable: 6.1.1
+    dev: false
+
+  /@iconify/icons-tabler/1.2.71:
+    resolution: {integrity: sha512-1QDET0hPbWLpbKOUdcEDES1CknHt056mBSk19O/YoYD/aP7ADpjbB3QeDKvtIZA9zToqzKbNwlaYLIj+DLXnWg==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: false
+
+  /@iconify/react/4.1.0_react@18.2.0:
+    resolution: {integrity: sha512-Mf72i3TNNKpKCKxmo7kzqyrUdCgaoljpqtWmtqpqwyxoV4ukhnDsSRNLhf2yBnqGr3cVZsdj/i0FMpXIY0Qk0g==}
+    peerDependencies:
+      react: '>=16'
+    dependencies:
+      '@iconify/types': 2.0.0
+      react: 18.2.0
+    dev: false
+
+  /@iconify/types/2.0.0:
+    resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
     dev: false
 
   /@jridgewell/gen-mapping/0.3.2:
@@ -1733,4 +1756,8 @@ packages:
   /yaml/1.10.2:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
+    dev: false
+
+  /zod/3.21.4:
+    resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
     dev: false

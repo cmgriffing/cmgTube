@@ -1,4 +1,4 @@
-import {
+import React, {
   useState,
   useCallback,
   useRef,
@@ -6,11 +6,21 @@ import {
   useContext,
   FormEvent,
 } from "react";
-import { MantineProvider, AppShell, Navbar, Header, Flex } from "@mantine/core";
-import { ModalsProvider } from "@mantine/modals";
+import {
+  MantineProvider,
+  AppShell,
+  Navbar,
+  Header,
+  Flex,
+  Button,
+  Modal,
+  TextInput,
+} from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import { z, AnyZodObject } from "zod";
 
 import { OBS_EVENTS } from "./types/enums";
-import { ObsInput } from "./types/types";
+import { AvatarAsset, ObsInput } from "./types/types";
 
 import { LocalStorageContext } from "./context/localforage.context";
 import { useAppObsCallbacks } from "./hooks/use-obs-callbacks";
@@ -19,11 +29,17 @@ import { Assets } from "./components/App/Assets";
 import { Sources } from "./components/App/Sources";
 import { Audio } from "./components/App/Audio";
 import { InstanceForm } from "./components/App/InstanceForm";
+import { showPublishModals } from "./components/App/Publish";
 
 import OBSWebSocket from "obs-websocket-js";
 const obs = new OBSWebSocket();
 
 import "./App.css";
+import {
+  generateCss,
+  validator,
+  assetMetadata,
+} from "./components/Avatars/SouthParkCanadian";
 
 const DEFAULT_INSTANCE = "Default";
 
@@ -33,57 +49,13 @@ const DEFAULT_CONFIG: AppConfig = {
   obsToken: "ws://localhost:4455",
 };
 
-async function dataUriToFile(dataUri: string, id = Date.now()) {
-  let filename = null;
-  if (!dataUri.startsWith("data:")) {
-    filename = dataUri.split("/").at(-1);
-  }
-  const source: Blob = await fetch(dataUri, { cache: "no-cache" }).then(
-    (response) => response.blob()
-  );
-  if (!filename) {
-    filename = id + "." + source.type.split("/")[1];
-  }
-  return new File([source], filename, { type: source.type });
-}
-
-async function fileToDataUri(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    try {
-      const fileReader = new FileReader();
-
-      fileReader.onload = function (result) {
-        try {
-          if (result.loaded && fileReader.result) {
-            if (typeof fileReader.result === "string") {
-              resolve(fileReader.result);
-            } else {
-              resolve(fileReader.result.toString());
-            }
-          }
-        } catch (error: any) {
-          reject(error);
-        }
-      };
-
-      fileReader.onerror = function (error) {
-        reject(error);
-      };
-
-      fileReader.readAsDataURL(file);
-    } catch (error: any) {
-      reject(error);
-    }
-  });
-}
-
 interface AppAsset {
   dataUri: string;
   name: string;
 }
 
 interface AppConfig {
-  assets: AppAsset[];
+  assets: AvatarAsset[];
   sources: string[];
   obsToken: string;
 }
@@ -91,7 +63,7 @@ interface AppConfig {
 export function App() {
   const [loading, setLoading] = useState(true);
   const [obsToken, setObsToken] = useState("");
-  const [assets, setAssets] = useState<AppAsset[]>([]);
+  const [assets, setAssets] = useState<AvatarAsset[]>([]);
   const [sources, setSources] = useState<string[]>([]);
   const [sourceList, setSourceList] = useState<string[]>([]);
   const [instanceList, setInstanceList] = useState<string[]>([]);
@@ -147,9 +119,9 @@ export function App() {
     // setLoading(true);
     // obs.disconnect();
 
-    setAssets([]);
-    setSources([]);
-    setSourceList([]);
+    // setAssets([]);
+    // setSources([]);
+    // setSourceList([]);
 
     if (instanceName == "") {
       setLoading(false);
@@ -199,16 +171,33 @@ export function App() {
 
   useEffect(() => {
     loadConfig(selectedInstance);
-  }, [selectedInstance, loadConfig]);
+  }, [selectedInstance]);
 
-  const persist = (instanceName: string, config: AppConfig) => {
-    if (instanceName) {
-      console.log(`Writing instance, ${instanceName}, with config:
-      ${JSON.stringify(config, null, 2)}
-    `);
-      localStorage.setItem(instanceName, config);
-    }
-  };
+  const persist = useCallback(
+    async (instanceName: string, config: AppConfig) => {
+      try {
+        if (instanceName) {
+          console.log(
+            `Writing instance, ${instanceName}, with config:
+              ${JSON.stringify(config, null, 2)}
+            `
+          );
+          await localStorage.setItem(instanceName, config);
+        }
+      } catch (e: any) {
+        console.log("error writing to localstorage", e);
+      }
+    },
+    []
+  );
+
+  useEffect(() => {
+    persist(selectedInstance, {
+      obsToken,
+      assets,
+      sources,
+    });
+  }, [obsToken, sources, assets]);
 
   // TODO: Refactor away from nested Promises
   // async function obsAdjustSensitivity(sourceName: string) {
@@ -240,8 +229,31 @@ export function App() {
       <AppShell
         padding="md"
         header={
-          <Header height={60} p="xs">
-            <h1>cmgTuber</h1>
+          <Header height={70} p="xs">
+            <Flex direction="row" align="center" justify="space-between">
+              <h1>cmgTuber</h1>
+              <Button
+                disabled={!connected}
+                onClick={() => {
+                  showPublishModals(
+                    `${window.location.toString()}/overlay`,
+                    `
+                      body { background-color: rgba(0,0,0,0); }
+
+                      ${sources.map(
+                        (source, index) => `
+                        --obs-source-${index + 1}: "${source}";
+                      `
+                      )}
+
+                      ${generateCss(assets)}
+                    `
+                  );
+                }}
+              >
+                Publish
+              </Button>
+            </Flex>
           </Header>
         }
         styles={(theme) => ({
@@ -277,13 +289,40 @@ export function App() {
                   setSelectedInstance(newInstanceList[0] || "");
                 }}
               /> */}
-            {/* <Assets assets={assetList} /> */}
+            <Assets
+              assets={assets}
+              validator={validator}
+              avatarAssetMetadata={assetMetadata}
+              onAddAsset={(newAsset) => {
+                setAssets([...assets, newAsset]);
+              }}
+              onModifyAsset={(asset) => {
+                setAssets(
+                  assets.map((_asset) => {
+                    if (_asset.name === asset.name) {
+                      return asset;
+                    }
+                    return _asset;
+                  })
+                );
+              }}
+              onDeleteAsset={(asset) => {
+                setAssets(assets.filter((_asset) => _asset !== asset));
+              }}
+            />
             <Sources
               obsToken={obsToken}
-              sources={sourceList}
+              sources={sources}
+              sourceList={sourceList}
               connected={connected}
               onReconnectClick={(newObsToken) => {
                 setObsToken(newObsToken);
+              }}
+              onAddSource={(newSource) => {
+                setSources([...sources, newSource]);
+              }}
+              onDeleteSource={(source) => {
+                setSources(sources.filter((_source) => _source !== source));
               }}
             />
             <Audio />

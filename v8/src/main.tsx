@@ -30,6 +30,14 @@ const router = createBrowserRouter(
       path: "/overlay",
       element: <Overlay />,
     },
+    {
+      path: "/overlay/:overlayType",
+      element: <Overlay />,
+    },
+    {
+      path: "/overlay/:overlayType/:preset",
+      element: <Overlay />,
+    },
   ],
   {
     // basename: "/cmgTube",

@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@emotion/react": "^11.10.6",
+    "@iconify/icons-tabler": "^1.2.71",
+    "@iconify/react": "^4.1.0",
     "@loadable/component": "^5.15.3",
     "@mantine/core": "^6.0.6",
     "@mantine/dropzone": "^6.0.6",
@@ -23,7 +25,8 @@
     "react-dom": "^18.2.0",
     "react-is": "^18.2.0",
     "react-router-dom": "^6.9.0",
-    "styled-components": "^5.3.9"
+    "styled-components": "^5.3.9",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@types/loadable__component": "^5.13.4",

@@ -2,7 +2,10 @@ import { useState, useEffect } from "react";
 
 export type CssData = Record<string, string>;
 
-export function useCssData(variableMap: Record<string, string>) {
+export function useCssData(
+  variableMap: Record<string, string>,
+  renderTimestamp = 0
+) {
   const [cssData, setCssData] = useState<CssData>({});
 
   useEffect(() => {
@@ -20,7 +23,7 @@ export function useCssData(variableMap: Record<string, string>) {
     });
 
     setCssData(newCssData);
-  }, []);
+  }, [renderTimestamp]);
 
   return cssData;
 }

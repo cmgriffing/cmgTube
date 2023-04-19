@@ -1,4 +1,5 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
 
 import OBSWebSocket from "obs-websocket-js";
 const obs = new OBSWebSocket();
@@ -9,76 +10,31 @@ import "./Overlay.css";
 import { useOverlayObsCallbacks } from "./hooks/use-obs-callbacks";
 import { OBS_EVENTS } from "./types/enums";
 import { ObsInput } from "./types/types";
-import { AvatarSouthParkCanadian } from "./components/Avatars/SouthParkCanadian";
+import { AvatarComponent as SouthParkCanadianComponent } from "./components/Avatars/SouthParkCanadian";
 
-// // load config and assets
-// const config = await getConfig()
-// console.debug(config)
-// if (!(config.assets instanceof Array)) {
-//     config.assets = [config.assets]
-// }
-// if(typeof config.sources == 'string'){
-//     config.sources=[config.sources]
-// }
-// import loadAsset from '../js-util/AssetLoader.mjs'
-// for (const source of config.assets) {
-//     loadAsset(source.url, source.id, true)
-// }
+type AvatarType = "south-park-ca";
 
-// // backoff mechanism
-// let backoff=false
-// function backoffStart(event){
-//     if(event instanceof AnimationEvent && getComputedStyle(event.target,event.pseudoElement).animationIterationCount=='infinite'){
-//         return
-//     }
-//     backoff=true
-// }
-// function backoffEnd(){
-//     backoff=false
-// }
-// window.ontransitionstart=backoffStart
-// window.ontransitionend=backoffEnd
-// window.ontransitioncancel=backoffEnd
-// window.onanimationstart=backoffStart
-// window.onanimationend=backoffEnd
-// window.ontransitioncancel=backoffEnd
-// // animation function
-// let active=false
-// requestAnimationFrame(function animate(){
-//     if(!backoff){
-//         for(const img of document.querySelectorAll('img')){
-//             if(active){
-//                 img.classList.add('active')
-//             }else{
-//                 img.classList.remove('active')
-//             }
-//         }
-//     }
-//     requestAnimationFrame(animate)
-// })
-
-// // obs connection
-// obs.on('Identified',(event)=>{
-//     console.debug(event)
-// })
-// obs.on('InputVolumeMeters',(event)=>{
-//     const inputs=event.inputs.filter(input=>config.sources.includes(input.inputName))
-//     for(const input of inputs){
-//         for(const channel of input.inputLevelsMul){
-//             if(channel[0]>0){
-//                 active=true
-//                 return
-//             }
-//         }
-//     }
-//     active=false
-// })
+const avatarMap: Record<
+  AvatarType,
+  (props: { isActive: boolean; renderTimestamp: number }) => JSX.Element
+> = {
+  "south-park-ca": SouthParkCanadianComponent,
+};
 
 export function Overlay() {
   const cssData = useCssData({
     obs_token: "--obs-token",
     obs_source_1: "--obs-source-1",
   });
+  const { overlayType, preset } = useParams<{
+    overlayType: AvatarType;
+    preset: string;
+  }>();
+  const [forcedUpdateTimestamp, setForcedUpdateTimestamp] = useState(0);
+
+  const AvatarComponent =
+    avatarMap[(overlayType as AvatarType) || "south-park-ca"] ||
+    SouthParkCanadianComponent;
 
   const [active, setActive] = useState(false);
   const [config, setConfig] = useState({
@@ -96,8 +52,6 @@ export function Overlay() {
       console.debug("Identified", event);
     },
     [OBS_EVENTS.InputVolumeMeters]: async (event: any) => {
-      // console.log("Input Volume changed", event);
-
       const inputs: ObsInput[] = event.inputs.filter((input: ObsInput) => {
         return config.sources.includes(input.inputName);
       });
@@ -152,9 +106,63 @@ export function Overlay() {
     };
   }, [config]);
 
+  useEffect(() => {
+    if (overlayType && preset) {
+      fetch(`/${overlayType}/${preset}.json`)
+        .then((response: any) => {
+          return response.json();
+        })
+        .then((response) => {
+          const cssVars = `
+            :root {
+              ${Object.entries(response)
+                .map(([key, value]) => {
+                  let formattedValue = `${value}`;
+
+                  if (typeof value === "string") {
+                    formattedValue = `"${value}"`;
+                  }
+
+                  return `${key}: ${formattedValue};\n\n`;
+                })
+                .join("")}
+            }
+          `;
+
+          const STYLE_ELEMENT_ID = "preset-style-element";
+
+          let styleElement = document.querySelector(`#${STYLE_ELEMENT_ID}`);
+          if (!styleElement) {
+            styleElement = document.createElement("style");
+            styleElement.id = STYLE_ELEMENT_ID;
+            document.head.appendChild(styleElement);
+          }
+
+          styleElement.innerHTML = cssVars;
+
+          setTimeout(() => {
+            setForcedUpdateTimestamp(Date.now());
+          }, 3000);
+        })
+        .catch((e) => {
+          console.log(
+            "Failed to fetch preset for overlay.",
+            {
+              preset,
+              overlayType,
+            },
+            e
+          );
+        });
+    }
+  }, [overlayType, preset]);
+
   return (
     <div className="overlay">
-      <AvatarSouthParkCanadian isActive={active} />
+      <AvatarComponent
+        isActive={active}
+        renderTimestamp={forcedUpdateTimestamp}
+      />
     </div>
   );
 }
