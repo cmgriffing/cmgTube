@@ -177,7 +177,7 @@ export function Assets({
               {!!asset.value && (
                 <img width="24" height="auto" src={asset.value} />
               )}
-              <Text>{asset.name}</Text>
+              <Text className="single-line-ellipsis">{asset.name}</Text>
             </Flex>
             <Group>
               <FileButton

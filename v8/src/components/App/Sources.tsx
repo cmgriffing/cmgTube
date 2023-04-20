@@ -137,15 +137,20 @@ export function Sources({
             {sources.length > 0 &&
               sources.map((source) => (
                 <ListItem key={source}>
-                  <Text>{source}</Text>
-                  <Group>
+                  <Text className="single-line-ellipsis">{source}</Text>
+                  <Flex
+                    direction={"row"}
+                    miw={"120px"}
+                    align="flex-end"
+                    justify={"flex-end"}
+                  >
                     <ActionIcon variant="filled" color="red">
                       <Icon
                         icon={trashXFilled}
                         onClick={() => onDeleteSource(source)}
                       />
                     </ActionIcon>
-                  </Group>
+                  </Flex>
                 </ListItem>
               ))}
             {!sources.length && <div>No Sources Found</div>}

@@ -140,9 +140,9 @@ export function Overlay() {
 
           styleElement.innerHTML = cssVars;
 
-          setTimeout(() => {
-            setForcedUpdateTimestamp(Date.now());
-          }, 3000);
+          // setTimeout(() => {
+          setForcedUpdateTimestamp(Date.now());
+          // }, 100);
         })
         .catch((e) => {
           console.log(

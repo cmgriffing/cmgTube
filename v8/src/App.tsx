@@ -185,7 +185,7 @@ export function App() {
           await localStorage.setItem(instanceName, config);
         }
       } catch (e: any) {
-        console.log("error writing to localstorage", e);
+        console.log("Error writing to localstorage", e);
       }
     },
     []
@@ -270,7 +270,7 @@ export function App() {
           {status}
         </div>
         {!loading && (
-          <Flex direction="column" gap="1rem">
+          <Flex direction="column" gap="1rem" mx="auto" maw={"540px"}>
             {/* <InstanceForm
                 instanceList={instanceList}
                 selectedInstance={selectedInstance}
@@ -325,7 +325,7 @@ export function App() {
                 setSources(sources.filter((_source) => _source !== source));
               }}
             />
-            <Audio />
+            {/* <Audio /> */}
           </Flex>
         )}
       </AppShell>
