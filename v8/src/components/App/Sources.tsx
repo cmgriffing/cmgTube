@@ -14,7 +14,8 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 
-import { ListItem } from "./common";
+import { ListItem } from "./common/ListItem";
+import { AppCard } from "./common/AppCard";
 
 import { Icon } from "@iconify/react";
 import trashXFilled from "@iconify/icons-tabler/trash-x-filled";
@@ -96,16 +97,17 @@ export function Sources({
           </Button>
         </Group>
       </Modal>
-      <Card>
-        <Flex direction="row" align="center" justify="space-between" w="full">
-          <h2>Sources</h2>
+      <AppCard
+        title="Sources"
+        headerExtras={
           <Button
             disabled={!connected || unusedSources.length === 0}
             onClick={open}
           >
             Add Source
           </Button>
-        </Flex>
+        }
+      >
         {!connected && (
           <Flex direction="column" align="center">
             <p>
@@ -156,7 +158,7 @@ export function Sources({
             {!sources.length && <div>No Sources Found</div>}
           </Flex>
         )}
-      </Card>
+      </AppCard>
     </>
   );
 }

@@ -28,8 +28,10 @@ import {
   AvatarAssetMetadata,
   AvatarAssetType,
 } from "../../types/types";
-import { ListItem } from "./common";
+import { ListItem } from "./common/ListItem";
 import { fileToDataUri } from "../../utils/images";
+
+import { AppCard } from "./common/AppCard";
 
 interface AssetsProps {
   assets: AvatarAsset[];
@@ -148,16 +150,18 @@ export function Assets({
           </Button>
         </Group>
       </Modal>
-      <Card>
-        <Flex direction="row" align="center" justify="space-between" w="full">
-          <h2>Assets</h2>
+
+      <AppCard
+        title="Assets"
+        headerExtras={
           <Button
             disabled={availableAssets.length === 0}
             onClick={addAssetModalActions.open}
           >
             Add Asset
           </Button>
-        </Flex>
+        }
+      >
         {assets.map((asset, index) => (
           <ListItem key={`${asset.name}-${index}`}>
             <Flex
@@ -291,7 +295,7 @@ export function Assets({
         ))}
 
         {!assets.length && <div>No Assets Found</div>}
-      </Card>
+      </AppCard>
     </>
   );
 }

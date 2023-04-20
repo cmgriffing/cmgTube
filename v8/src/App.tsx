@@ -28,7 +28,7 @@ import { useAppObsCallbacks } from "./hooks/use-obs-callbacks";
 import { Assets } from "./components/App/Assets";
 import { Sources } from "./components/App/Sources";
 import { Audio } from "./components/App/Audio";
-import { InstanceForm } from "./components/App/InstanceForm";
+import { InstanceForm, DEFAULT_INSTANCE } from "./components/App/InstanceForm";
 import { showPublishModals } from "./components/App/Publish";
 
 import OBSWebSocket from "obs-websocket-js";
@@ -40,8 +40,6 @@ import {
   validator,
   assetMetadata,
 } from "./components/Avatars/SouthParkCanadian";
-
-const DEFAULT_INSTANCE = "Default";
 
 const DEFAULT_CONFIG: AppConfig = {
   assets: [],
@@ -140,7 +138,9 @@ export function App() {
       setObsToken(config.obsToken);
     }
 
-    const instanceNames = await localStorage.keys();
+    const instanceNames = (await localStorage.keys()).filter(
+      (key) => !!key.trim()
+    );
     setInstanceList(instanceNames);
 
     setSources(config.sources);
@@ -271,24 +271,24 @@ export function App() {
         </div>
         {!loading && (
           <Flex direction="column" gap="1rem" mx="auto" maw={"540px"}>
-            {/* <InstanceForm
-                instanceList={instanceList}
-                selectedInstance={selectedInstance}
-                onInstanceChange={(instance) => {
-                  setSelectedInstance(instance);
-                }}
-                onInstanceCreated={(instance) => {
-                  setInstanceList([...instanceList, instance].sort());
-                  setSelectedInstance(instance);
-                }}
-                onInstanceDeleted={(instance) => {
-                  const newInstanceList = instanceList.filter(
-                    (instance) => instance !== selectedInstance
-                  );
-                  setInstanceList(newInstanceList);
-                  setSelectedInstance(newInstanceList[0] || "");
-                }}
-              /> */}
+            <InstanceForm
+              instanceList={instanceList}
+              selectedInstance={selectedInstance}
+              onInstanceChange={(instance) => {
+                // setSelectedInstance(instance);
+              }}
+              onInstanceCreated={(instance) => {
+                // setInstanceList([...instanceList, instance].sort());
+                // setSelectedInstance(instance);
+              }}
+              onInstanceDeleted={(instance) => {
+                const newInstanceList = instanceList.filter(
+                  (instance) => instance !== selectedInstance
+                );
+                // setInstanceList(newInstanceList);
+                // setSelectedInstance(newInstanceList[0] || "");
+              }}
+            />
             <Assets
               assets={assets}
               validator={validator}

@@ -1,4 +1,10 @@
 import React, { useState } from "react";
+import { Card, Modal, Button, Select, Group, Flex } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+
+import { AppCard } from "./common/AppCard";
+
+export const DEFAULT_INSTANCE = "Default";
 
 interface InstanceFormProps {
   instanceList: string[];
@@ -16,49 +22,80 @@ export function InstanceForm({
   onInstanceDeleted,
 }: InstanceFormProps) {
   const [newInstanceName, setNewInstanceName] = useState("");
+  const [newInstanceModalOpened, newInstanceModalActions] = useDisclosure();
 
   return (
     <>
-      <select
-        id="instance"
-        onChange={(event) => {
-          onInstanceChange(event.currentTarget.value);
-        }}
+      <Modal
+        title="New Instance"
+        opened={newInstanceModalOpened}
+        onClose={newInstanceModalActions.close}
       >
-        <option value="">Create New Instance</option>
-        {instanceList.map((instance) => {
-          return <option value={instance}>{instance}</option>;
-        })}
-      </select>
-      <form
-        name="new_instance"
-        onSubmit={(event) => {
-          event.preventDefault();
-          onInstanceCreated(newInstanceName);
-          setNewInstanceName("");
-        }}
-      >
-        <input
-          type="text"
-          value={newInstanceName}
-          name="instance_name"
-          required
-          onInput={(e) => {
-            setNewInstanceName(e.currentTarget.value);
-          }}
-        />
-        <button type="submit">Create new instance</button>
-
-        <button
-          type="button"
-          id="remove_instance"
-          onClick={() => {
-            onInstanceDeleted(selectedInstance);
+        <form
+          name="new_instance"
+          onSubmit={(event) => {
+            event.preventDefault();
+            onInstanceCreated(newInstanceName);
+            setNewInstanceName("");
           }}
         >
-          Delete
-        </button>
-      </form>
+          <input
+            type="text"
+            value={newInstanceName}
+            name="instance_name"
+            required
+            onInput={(e) => {
+              setNewInstanceName(e.currentTarget.value);
+            }}
+          />
+          <Flex align="center" justify="flex-end">
+            <Button
+              type="button"
+              onClick={() => {
+                setNewInstanceName("");
+                newInstanceModalActions.close();
+              }}
+            >
+              Cancel
+            </Button>
+            <Button type="submit">Create</Button>
+          </Flex>
+        </form>
+      </Modal>
+
+      <AppCard
+        title="Instances"
+        headerExtras={
+          <Button onClick={newInstanceModalActions.open}>New Instance</Button>
+        }
+      >
+        <Flex align={"flex-end"} justify={"center"} gap={"1rem"} my={"2rem"}>
+          <Select
+            label="Selected Instance"
+            id="instance"
+            data={instanceList.map((instance) => {
+              return {
+                label: instance,
+                value: instance,
+              };
+            })}
+            onChange={(selectedValue) => {
+              onInstanceChange(selectedValue || DEFAULT_INSTANCE);
+            }}
+          />
+
+          <Button
+            type="button"
+            id="remove_instance"
+            color={"red"}
+            onClick={() => {
+              onInstanceDeleted(selectedInstance);
+            }}
+          >
+            Delete
+          </Button>
+        </Flex>
+      </AppCard>
     </>
   );
 }
