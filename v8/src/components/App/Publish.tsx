@@ -5,6 +5,9 @@ import { modals } from "@mantine/modals";
 const commonModalOptions = {
   closeOnConfirm: false,
   labels: { confirm: "Next", cancel: "Back" },
+  onClose: () => {
+    modals.closeAll();
+  },
 };
 
 function PublishSection({ children }: PropsWithChildren<{}>) {

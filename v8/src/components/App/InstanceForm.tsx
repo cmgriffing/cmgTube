@@ -4,6 +4,9 @@ import { useDisclosure } from "@mantine/hooks";
 
 import { AppCard } from "./common/AppCard";
 
+import { Icon } from "@iconify/react";
+import deviceFloppy from "@iconify/icons-tabler/device-floppy";
+
 export const DEFAULT_INSTANCE = "Default";
 
 interface InstanceFormProps {
@@ -65,6 +68,7 @@ export function InstanceForm({
 
       <AppCard
         title="Instances"
+        titleIcon={<Icon icon={deviceFloppy} />}
         headerExtras={
           <Button onClick={newInstanceModalActions.open}>New Instance</Button>
         }

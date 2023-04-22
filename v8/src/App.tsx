@@ -26,6 +26,7 @@ import { LocalStorageContext } from "./context/localforage.context";
 import { useAppObsCallbacks } from "./hooks/use-obs-callbacks";
 
 import { Assets } from "./components/App/Assets";
+import { ConnectionForm } from "./components/App/ConnectionForm";
 import { Sources } from "./components/App/Sources";
 import { Audio } from "./components/App/Audio";
 import { InstanceForm, DEFAULT_INSTANCE } from "./components/App/InstanceForm";
@@ -265,10 +266,6 @@ export function App() {
           },
         })}
       >
-        <div id="status" hidden={!loading && !status}>
-          {!status && "Loading..."}
-          {status}
-        </div>
         {!loading && (
           <Flex direction="column" gap="1rem" mx="auto" maw={"540px"}>
             <InstanceForm
@@ -310,21 +307,31 @@ export function App() {
                 setAssets(assets.filter((_asset) => _asset !== asset));
               }}
             />
-            <Sources
+            <ConnectionForm
               obsToken={obsToken}
-              sources={sources}
-              sourceList={sourceList}
-              connected={connected}
+              isConnected={connected}
               onReconnectClick={(newObsToken) => {
                 setObsToken(newObsToken);
               }}
-              onAddSource={(newSource) => {
-                setSources([...sources, newSource]);
-              }}
-              onDeleteSource={(source) => {
-                setSources(sources.filter((_source) => _source !== source));
+              onDisconnectClick={() => {
+                console.log("disconnected");
+                // TODO: Investigate why this doesn't work as expected.
+                // Shows empty page instead of disconnected state
+                setObsToken("");
               }}
             />
+            {!!connected && (
+              <Sources
+                sources={sources}
+                sourceList={sourceList}
+                onAddSource={(newSource) => {
+                  setSources([...sources, newSource]);
+                }}
+                onDeleteSource={(source) => {
+                  setSources(sources.filter((_source) => _source !== source));
+                }}
+              />
+            )}
             {/* <Audio /> */}
           </Flex>
         )}

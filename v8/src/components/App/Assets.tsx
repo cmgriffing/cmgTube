@@ -22,6 +22,7 @@ import pencilIcon from "@iconify/icons-tabler/pencil";
 import uploadIcon from "@iconify/icons-tabler/upload";
 import settingsIcon from "@iconify/icons-tabler/settings";
 import photoOff from "@iconify/icons-tabler/photo-off";
+import photoCog from "@iconify/icons-tabler/photo-cog";
 
 import {
   AvatarAsset,
@@ -153,6 +154,7 @@ export function Assets({
 
       <AppCard
         title="Assets"
+        titleIcon={<Icon icon={photoCog} />}
         headerExtras={
           <Button
             disabled={availableAssets.length === 0}

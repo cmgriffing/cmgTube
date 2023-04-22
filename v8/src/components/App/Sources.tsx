@@ -19,15 +19,11 @@ import { AppCard } from "./common/AppCard";
 
 import { Icon } from "@iconify/react";
 import trashXFilled from "@iconify/icons-tabler/trash-x-filled";
+import microphoneIcon from "@iconify/icons-tabler/microphone";
 
 interface SourcesProps {
-  obsToken: string;
-  connected: boolean;
   sources: string[];
   sourceList: string[];
-  onReconnectClick:
-    | ((obsToken: string) => void)
-    | ((obsToken: string) => Promise<void>);
   onAddSource:
     | ((newSource: string) => void)
     | ((newSource: string) => Promise<void>);
@@ -37,16 +33,12 @@ interface SourcesProps {
 }
 
 export function Sources({
-  obsToken,
   sources,
   sourceList,
-  connected,
-  onReconnectClick,
   onAddSource,
   onDeleteSource,
 }: SourcesProps) {
   const [opened, { open, close }] = useDisclosure(false);
-  const [newObsToken, setNewObsToken] = useState(obsToken);
 
   const [selectedNewSource, setSelectedNewSource] = useState<string>();
 
@@ -99,65 +91,35 @@ export function Sources({
       </Modal>
       <AppCard
         title="Sources"
+        titleIcon={<Icon icon={microphoneIcon} />}
         headerExtras={
-          <Button
-            disabled={!connected || unusedSources.length === 0}
-            onClick={open}
-          >
+          <Button disabled={unusedSources.length === 0} onClick={open}>
             Add Source
           </Button>
         }
       >
-        {!connected && (
-          <Flex direction="column" align="center">
-            <p>
-              Disconnected from OBS. We need to connect to OBS to get the list
-              of Sources available.
-            </p>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                onReconnectClick(newObsToken);
-              }}
-            >
-              <TextInput
-                label="OBS WebSocket Server"
-                id="obs-token"
-                value={newObsToken}
-                name="obsToken"
-                placeholder={"ws://localhost:4455"}
-                onInput={(inputEvent) => {
-                  setNewObsToken(inputEvent.currentTarget.value);
-                }}
-              />
-              <Button type="submit">Reconnect</Button>
-            </form>
-          </Flex>
-        )}
-        {connected && (
-          <Flex direction="column">
-            {sources.length > 0 &&
-              sources.map((source) => (
-                <ListItem key={source}>
-                  <Text className="single-line-ellipsis">{source}</Text>
-                  <Flex
-                    direction={"row"}
-                    miw={"120px"}
-                    align="flex-end"
-                    justify={"flex-end"}
-                  >
-                    <ActionIcon variant="filled" color="red">
-                      <Icon
-                        icon={trashXFilled}
-                        onClick={() => onDeleteSource(source)}
-                      />
-                    </ActionIcon>
-                  </Flex>
-                </ListItem>
-              ))}
-            {!sources.length && <div>No Sources Found</div>}
-          </Flex>
-        )}
+        <Flex direction="column">
+          {sources.length > 0 &&
+            sources.map((source) => (
+              <ListItem key={source}>
+                <Text className="single-line-ellipsis">{source}</Text>
+                <Flex
+                  direction={"row"}
+                  miw={"120px"}
+                  align="flex-end"
+                  justify={"flex-end"}
+                >
+                  <ActionIcon variant="filled" color="red">
+                    <Icon
+                      icon={trashXFilled}
+                      onClick={() => onDeleteSource(source)}
+                    />
+                  </ActionIcon>
+                </Flex>
+              </ListItem>
+            ))}
+          {!sources.length && <div>No Sources Found</div>}
+        </Flex>
       </AppCard>
     </>
   );

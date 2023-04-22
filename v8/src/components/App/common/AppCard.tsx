@@ -1,14 +1,16 @@
 import React, { PropsWithChildren } from "react";
-import { Card, Flex } from "@mantine/core";
+import { Card, Flex, Box } from "@mantine/core";
 
 interface AppCardProps {
   title: string;
-  headerExtras: React.ReactNode;
+  titleIcon?: React.ReactNode;
+  headerExtras?: React.ReactNode;
 }
 
 export function AppCard({
   children,
   title,
+  titleIcon,
   headerExtras,
 }: PropsWithChildren<AppCardProps>) {
   return (
@@ -24,7 +26,12 @@ export function AppCard({
         w="full"
         mb="1rem"
       >
-        <h2>{title}</h2>
+        <h2>
+          <Flex direction={"row"} align="center">
+            {!!titleIcon && <Box mr={"0.5rem"}>{titleIcon}</Box>}
+            {title}
+          </Flex>
+        </h2>
         {!!headerExtras && (
           <Flex direction={"row"} align="center" justify={"flex-end"}>
             {headerExtras}
