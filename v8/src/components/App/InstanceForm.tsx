@@ -75,6 +75,7 @@ export function InstanceForm({
       >
         <Flex align={"flex-end"} justify={"center"} gap={"1rem"} my={"2rem"}>
           <Select
+            value={selectedInstance}
             label="Selected Instance"
             id="instance"
             data={instanceList.map((instance) => {
@@ -88,16 +89,18 @@ export function InstanceForm({
             }}
           />
 
-          <Button
-            type="button"
-            id="remove_instance"
-            color={"red"}
-            onClick={() => {
-              onInstanceDeleted(selectedInstance);
-            }}
-          >
-            Delete
-          </Button>
+          {selectedInstance !== DEFAULT_INSTANCE && (
+            <Button
+              type="button"
+              id="remove_instance"
+              color={"red"}
+              onClick={() => {
+                onInstanceDeleted(selectedInstance);
+              }}
+            >
+              Delete
+            </Button>
+          )}
         </Flex>
       </AppCard>
     </>

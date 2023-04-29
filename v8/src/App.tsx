@@ -118,7 +118,7 @@ export function App() {
       };
 
       setSourceList(sourceList.map(renameSource));
-      setSources(sources.map(renameSource));
+      setSources(sources.map(renameSource) || []);
     },
 
     [OBS_EVENTS.InputRemoved]: async (input) => {
@@ -132,22 +132,18 @@ export function App() {
     // setLoading(true);
     // obs.disconnect();
 
-    // setAssets([]);
-    // setSources([]);
-    // setSourceList([]);
-
     if (instanceName == "") {
       setLoading(false);
       return false;
     }
 
-    const config =
-      ((await localStorage
+    const config = {
+      ...DEFAULT_CONFIG,
+      ...(((await localStorage
         .getItem(instanceName)
         .catch(() => DEFAULT_CONFIG)) as unknown as AppConfig) ||
-      DEFAULT_CONFIG;
-
-    console.debug(config);
+        DEFAULT_CONFIG),
+    };
 
     if (config.obsToken) {
       setObsToken(config.obsToken);
@@ -158,14 +154,8 @@ export function App() {
     );
     setInstanceList(instanceNames);
 
-    setSources(config.sources);
-    setAssets(config.assets);
-
-    console.log(
-      "theme and preset before loading: ",
-      config.currentThemeId,
-      config.currentPresetId
-    );
+    setSources(config.sources || []);
+    setAssets(config?.assets || []);
 
     setCurrentThemeId(config.currentThemeId);
     setCurrentPresetId(config.currentPresetId);
@@ -323,18 +313,18 @@ export function App() {
               instanceList={instanceList}
               selectedInstance={selectedInstance}
               onInstanceChange={(instance) => {
-                // setSelectedInstance(instance);
+                setSelectedInstance(instance);
               }}
               onInstanceCreated={(instance) => {
-                // setInstanceList([...instanceList, instance].sort());
-                // setSelectedInstance(instance);
+                setInstanceList([...instanceList, instance].sort());
+                setSelectedInstance(instance);
               }}
               onInstanceDeleted={(instance) => {
                 const newInstanceList = instanceList.filter(
                   (instance) => instance !== selectedInstance
                 );
-                // setInstanceList(newInstanceList);
-                // setSelectedInstance(newInstanceList[0] || "");
+                setInstanceList(newInstanceList);
+                setSelectedInstance(newInstanceList[0] || "");
               }}
             />
             <ThemeSelector
@@ -342,11 +332,9 @@ export function App() {
               currentPresetId={currentPresetId}
               themes={[SouthParkCanadian]}
               onThemeChanged={(theme) => {
-                console.log("changing theme", theme?.themeMetadata.id || "");
                 setCurrentThemeId(theme?.themeMetadata.id || "");
               }}
               onPresetChanged={(preset) => {
-                console.log("changing preset", preset?.id || "");
                 setCurrentPresetId(preset?.id || "");
               }}
             />
@@ -414,7 +402,6 @@ function getValidity(
   currentThemeId: string,
   currentPresetId: string
 ): ValidationStep[] {
-  console.log({ assets });
   // const assetsAreValid = validator.parse(
   //   assets.reduce((acc, asset, index) => {
   //     acc[asset.name] = asset;
@@ -422,8 +409,6 @@ function getValidity(
   //   }, {} as Record<string, AvatarAsset | AvatarAsset[]>)
   // );
   const assetsAreValid = true;
-
-  console.log({ assetsAreValid });
 
   const mainSteps = [
     { label: "Instance", valid: true },

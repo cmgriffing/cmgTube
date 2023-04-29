@@ -51,7 +51,7 @@ export function Preview({ themeId, presetId }: PropsWithoutRef<PreviewProps>) {
   return (
     <div className={classes.wrapper}>
       <label className={classes.previewLabel}>Preview</label>
-      <Flex>{content}</Flex>
+      <Flex mih={"150px"}>{content}</Flex>
       <Button
         m={"3px"}
         w="calc(100% - 6px)"

@@ -80,7 +80,7 @@ export function Assets({
           return true;
         }
 
-        return !assets.find((asset) => asset.name === assetMetadata.name);
+        return !assets?.find((asset) => asset.name === assetMetadata.name);
       })
     );
   }, [assets]);
@@ -168,7 +168,7 @@ export function Assets({
           </Button>
         }
       >
-        {assets.map((asset, index) => (
+        {assets?.map((asset, index) => (
           <ListItem key={`${asset.name}-${index}`}>
             <Flex
               gap={"0.5rem"}
@@ -300,7 +300,7 @@ export function Assets({
           </ListItem>
         ))}
 
-        {!assets.length && (
+        {!assets?.length && (
           <Flex align="center" justify="center" p="1rem">
             <Text fw={"bold"}>
               {!selectedPresetId

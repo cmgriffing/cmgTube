@@ -44,7 +44,7 @@ export function Sources({
 
   const unusedSources = useMemo(() => {
     return sourceList.filter((source) => {
-      return sources.indexOf(source) === -1;
+      return sources?.indexOf(source) === -1;
     });
   }, [sources, sourceList]);
 
@@ -99,7 +99,7 @@ export function Sources({
         }
       >
         <Flex direction="column">
-          {sources.length > 0 &&
+          {sources?.length > 0 &&
             sources.map((source) => (
               <ListItem key={source}>
                 <Text className="single-line-ellipsis">{source}</Text>
@@ -118,7 +118,7 @@ export function Sources({
                 </Flex>
               </ListItem>
             ))}
-          {!sources.length && (
+          {!sources?.length && (
             <Flex align="center" justify="center" p="1rem">
               <Text fw={"bold"}>No Sources Found</Text>
             </Flex>

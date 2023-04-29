@@ -37,6 +37,7 @@ export function Overlay() {
     SouthParkCanadianComponent;
 
   const [active, setActive] = useState(false);
+  const [overridingActive, setOverridingActive] = useState(false);
   const [config, setConfig] = useState({
     obsToken: cssData.obs_token,
     sources: [] as string[],
@@ -59,13 +60,18 @@ export function Overlay() {
       for (const input of inputs) {
         for (const channel of input?.inputLevelsMul || []) {
           if (channel[0] > 0) {
-            setActive(true);
+            if (!overridingActive) {
+              setActive(true);
+            }
             return;
           }
         }
       }
 
-      setActive(false);
+      if (!overridingActive) {
+        console.log("INPUT setting active");
+        setActive(false);
+      }
     },
   });
 
@@ -158,13 +164,16 @@ export function Overlay() {
   }, [overlayType, preset]);
 
   useEffect(() => {
-    window.addEventListener(
-      "message",
-      (event) => {
-        setActive(!!event.data.active);
-      },
-      false
-    );
+    // consider throttling this function
+    const messageHandler = (event: any) => {
+      setActive(!!event.data.active);
+      setOverridingActive(!!event.data.active);
+    };
+    window.addEventListener("message", messageHandler, false);
+
+    return () => {
+      window.removeEventListener("message", messageHandler);
+    };
   }, []);
 
   return (
