@@ -8,10 +8,23 @@ import {
   AvatarAssetMetadata,
   AvatarAssetComponentProps,
   AvatarAsset,
+  ThemeMetadata,
 } from "../../types/types";
 import { createZodAsset } from "./common";
 
 import "./SouthParkCanadian.css";
+
+export const themeMetadata: ThemeMetadata = {
+  id: "south-park-ca",
+  label: "South Park (Canadian)",
+};
+
+export const themePresets: ThemeMetadata[] = [
+  {
+    id: "cmgriffing",
+    label: "cmgriffing",
+  },
+];
 
 const nameToCssVar = {
   idle: "--images-idle",
@@ -20,7 +33,7 @@ const nameToCssVar = {
   random: (index: number) => `--images-random-${index}`,
 };
 
-function FOO({
+function ActiveConfigComponent({
   image,
   onModifyConfig,
   config,
@@ -100,7 +113,7 @@ export const assetMetadata: AvatarAssetMetadata<any>[] = [
     type: AvatarAssetType.Single,
     required: true,
     config: { slicePointY: 0 },
-    configComponent: FOO,
+    configComponent: ActiveConfigComponent,
   },
   { name: "blink", type: AvatarAssetType.Single, required: false },
   {
@@ -178,7 +191,9 @@ interface SouthParkCanadianRuntimeConfig {
   random: string[];
 }
 
-export function AvatarComponent({ isActive, renderTimestamp }: AvatarProps) {
+export function AvatarComponent(props: AvatarProps) {
+  const { isActive, renderTimestamp } = props;
+
   const [config, setConfig] = useState<SouthParkCanadianRuntimeConfig>({
     idle: "",
     activeTop: "",

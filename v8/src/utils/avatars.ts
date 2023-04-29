@@ -3,7 +3,7 @@ import { AvatarModule } from "../types/types";
 export function validateAvatar(mod: AvatarModule) {
   if (
     !mod.AvatarComponent ||
-    !mod.avatarMetadata ||
+    !mod.assetMetadata ||
     !mod.generateCss ||
     !mod.validator
   ) {

@@ -118,7 +118,11 @@ export function Sources({
                 </Flex>
               </ListItem>
             ))}
-          {!sources.length && <div>No Sources Found</div>}
+          {!sources.length && (
+            <Flex align="center" justify="center" p="1rem">
+              <Text fw={"bold"}>No Sources Found</Text>
+            </Flex>
+          )}
         </Flex>
       </AppCard>
     </>

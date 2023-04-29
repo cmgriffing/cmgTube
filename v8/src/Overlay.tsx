@@ -157,6 +157,16 @@ export function Overlay() {
     }
   }, [overlayType, preset]);
 
+  useEffect(() => {
+    window.addEventListener(
+      "message",
+      (event) => {
+        setActive(!!event.data.active);
+      },
+      false
+    );
+  }, []);
+
   return (
     <div className="overlay">
       <AvatarComponent

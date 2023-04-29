@@ -37,6 +37,8 @@ import { AppCard } from "./common/AppCard";
 interface AssetsProps {
   assets: AvatarAsset[];
   validator: z.AnyZodObject;
+  selectedThemeId?: string;
+  selectedPresetId?: string;
   avatarAssetMetadata: AvatarAssetMetadata<{}>[];
   onAddAsset:
     | ((newAsset: AvatarAsset) => void)
@@ -56,6 +58,8 @@ export function Assets({
   onDeleteAsset,
   onAddAsset,
   onModifyAsset,
+  selectedThemeId,
+  selectedPresetId,
 }: AssetsProps) {
   type ValidatorType = z.infer<typeof validator>;
   const [structuredAssets, setStructuredAssets] = useState<ValidatorType>();
@@ -157,7 +161,7 @@ export function Assets({
         titleIcon={<Icon icon={photoCog} />}
         headerExtras={
           <Button
-            disabled={availableAssets.length === 0}
+            disabled={availableAssets.length === 0 || !!selectedPresetId}
             onClick={addAssetModalActions.open}
           >
             Add Asset
@@ -296,7 +300,15 @@ export function Assets({
           </ListItem>
         ))}
 
-        {!assets.length && <div>No Assets Found</div>}
+        {!assets.length && (
+          <Flex align="center" justify="center" p="1rem">
+            <Text fw={"bold"}>
+              {!selectedPresetId
+                ? "No Assets Found"
+                : "Presets already have Assets."}
+            </Text>
+          </Flex>
+        )}
       </AppCard>
     </>
   );

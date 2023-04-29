@@ -1,11 +1,17 @@
 import type Zod from "zod";
-import { PropsWithoutRef } from "react";
+
+export interface ThemeMetadata {
+  id: string;
+  label: string;
+}
 
 export interface AvatarModule {
-  AvatarComponent: React.ReactNode;
-  avatarMetadata: AvatarAssetMetadata<any>[];
+  themeMetadata: ThemeMetadata;
+  themePresets: ThemeMetadata[];
+  AvatarComponent: React.ReactNode | ((props: AvatarProps) => JSX.Element);
+  assetMetadata: AvatarAssetMetadata<any>[];
   validator: Zod.AnyZodObject;
-  generateCss: (validator: Zod.AnyZodObject) => string;
+  generateCss: (assets: AvatarAsset[]) => string;
 }
 
 export interface ObsInput {
@@ -43,4 +49,10 @@ export interface AvatarAssetMetadata<T> {
   type: AvatarAssetType;
   config?: T;
   configComponent?: React.ComponentType<AvatarAssetComponentProps<T>>;
+}
+
+export interface ValidationStep {
+  label: string;
+  valid: boolean;
+  optional?: boolean;
 }

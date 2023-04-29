@@ -13,14 +13,17 @@ import {
   Header,
   Flex,
   Button,
+  Box,
   Modal,
   TextInput,
+  MediaQuery,
+  getBreakpointValue,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { z, AnyZodObject } from "zod";
 
 import { OBS_EVENTS } from "./types/enums";
-import { AvatarAsset, ObsInput } from "./types/types";
+import { AvatarAsset, ObsInput, ValidationStep } from "./types/types";
 
 import { LocalStorageContext } from "./context/localforage.context";
 import { useAppObsCallbacks } from "./hooks/use-obs-callbacks";
@@ -29,23 +32,30 @@ import { Assets } from "./components/App/Assets";
 import { ConnectionForm } from "./components/App/ConnectionForm";
 import { Sources } from "./components/App/Sources";
 import { Audio } from "./components/App/Audio";
+import { ThemeSelector } from "./components/App/ThemeSelector";
+import { ValidationTimeline } from "./components/App/ValidationTimeline";
 import { InstanceForm, DEFAULT_INSTANCE } from "./components/App/InstanceForm";
 import { showPublishModals } from "./components/App/Publish";
+import { Preview } from "./components/App/Preview";
 
 import OBSWebSocket from "obs-websocket-js";
 const obs = new OBSWebSocket();
 
 import "./App.css";
-import {
-  generateCss,
-  validator,
-  assetMetadata,
-} from "./components/Avatars/SouthParkCanadian";
+// import {
+//   generateCss,
+//   validator,
+//   assetMetadata,
+// } from "./components/Avatars/SouthParkCanadian";
+
+import * as SouthParkCanadian from "./components/Avatars/SouthParkCanadian";
 
 const DEFAULT_CONFIG: AppConfig = {
   assets: [],
   sources: [],
   obsToken: "ws://localhost:4455",
+  currentThemeId: "",
+  currentPresetId: "",
 };
 
 interface AppAsset {
@@ -57,11 +67,15 @@ interface AppConfig {
   assets: AvatarAsset[];
   sources: string[];
   obsToken: string;
+  currentThemeId: string;
+  currentPresetId: string;
 }
 
 export function App() {
   const [loading, setLoading] = useState(true);
   const [obsToken, setObsToken] = useState("");
+  const [currentThemeId, setCurrentThemeId] = useState("");
+  const [currentPresetId, setCurrentPresetId] = useState("");
   const [assets, setAssets] = useState<AvatarAsset[]>([]);
   const [sources, setSources] = useState<string[]>([]);
   const [sourceList, setSourceList] = useState<string[]>([]);
@@ -146,6 +160,16 @@ export function App() {
 
     setSources(config.sources);
     setAssets(config.assets);
+
+    console.log(
+      "theme and preset before loading: ",
+      config.currentThemeId,
+      config.currentPresetId
+    );
+
+    setCurrentThemeId(config.currentThemeId);
+    setCurrentPresetId(config.currentPresetId);
+
     setLoading(false);
   }, []);
 
@@ -193,12 +217,15 @@ export function App() {
   );
 
   useEffect(() => {
+    console.log("Persisting");
     persist(selectedInstance, {
       obsToken,
       assets,
       sources,
+      currentThemeId,
+      currentPresetId,
     });
-  }, [obsToken, sources, assets]);
+  }, [obsToken, sources, assets, currentThemeId, currentPresetId]);
 
   // TODO: Refactor away from nested Promises
   // async function obsAdjustSensitivity(sourceName: string) {
@@ -225,16 +252,40 @@ export function App() {
   //   });
   // }
 
+  const validity = getValidity(
+    connected,
+    assets,
+    SouthParkCanadian.validator,
+    sources,
+    currentThemeId,
+    currentPresetId
+  );
+
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <AppShell
+        navbarOffsetBreakpoint="sm"
+        navbar={
+          <Navbar
+            hidden={true}
+            hiddenBreakpoint="sm"
+            width={{ base: 300 }}
+            height={"100%"}
+          >
+            <Box m="2rem auto">
+              <ValidationTimeline steps={validity} />
+            </Box>
+
+            <Preview themeId={currentThemeId} presetId={currentPresetId} />
+          </Navbar>
+        }
         padding="md"
         header={
           <Header height={70} p="xs">
             <Flex direction="row" align="center" justify="space-between">
               <h1>cmgTuber</h1>
               <Button
-                disabled={!connected}
+                disabled={!connected || !isValid(validity)}
                 onClick={() => {
                   showPublishModals(
                     `${window.location.toString()}/overlay`,
@@ -247,7 +298,7 @@ export function App() {
                       `
                       )}
 
-                      ${generateCss(assets)}
+                      ${SouthParkCanadian.generateCss(assets)}
                     `
                   );
                 }}
@@ -267,7 +318,7 @@ export function App() {
         })}
       >
         {!loading && (
-          <Flex direction="column" gap="1rem" mx="auto" maw={"540px"}>
+          <Flex direction="column" gap="1rem" mx="auto" w="100%" maw={"540px"}>
             <InstanceForm
               instanceList={instanceList}
               selectedInstance={selectedInstance}
@@ -286,10 +337,25 @@ export function App() {
                 // setSelectedInstance(newInstanceList[0] || "");
               }}
             />
+            <ThemeSelector
+              currentThemeId={currentThemeId}
+              currentPresetId={currentPresetId}
+              themes={[SouthParkCanadian]}
+              onThemeChanged={(theme) => {
+                console.log("changing theme", theme?.themeMetadata.id || "");
+                setCurrentThemeId(theme?.themeMetadata.id || "");
+              }}
+              onPresetChanged={(preset) => {
+                console.log("changing preset", preset?.id || "");
+                setCurrentPresetId(preset?.id || "");
+              }}
+            />
             <Assets
               assets={assets}
-              validator={validator}
-              avatarAssetMetadata={assetMetadata}
+              validator={SouthParkCanadian.validator}
+              avatarAssetMetadata={SouthParkCanadian.assetMetadata}
+              selectedThemeId={currentThemeId}
+              selectedPresetId={currentPresetId}
               onAddAsset={(newAsset) => {
                 setAssets([...assets, newAsset]);
               }}
@@ -338,4 +404,44 @@ export function App() {
       </AppShell>
     </MantineProvider>
   );
+}
+
+function getValidity(
+  connected: boolean,
+  assets: AvatarAsset[],
+  validator: z.ZodObject<any>,
+  sources: string[],
+  currentThemeId: string,
+  currentPresetId: string
+): ValidationStep[] {
+  console.log({ assets });
+  // const assetsAreValid = validator.parse(
+  //   assets.reduce((acc, asset, index) => {
+  //     acc[asset.name] = asset;
+  //     return acc;
+  //   }, {} as Record<string, AvatarAsset | AvatarAsset[]>)
+  // );
+  const assetsAreValid = true;
+
+  console.log({ assetsAreValid });
+
+  const mainSteps = [
+    { label: "Instance", valid: true },
+    {
+      label: "Theme",
+      valid: true,
+    },
+    {
+      label: "Assets",
+      valid: !assetsAreValid || !!(currentThemeId && currentPresetId),
+    },
+    { label: "Connection", valid: connected },
+    { label: "Sources", valid: sources.length >= 1 },
+  ];
+
+  return [...mainSteps, { label: "Done", valid: isValid(mainSteps) }];
+}
+
+function isValid(steps: ValidationStep[]) {
+  return !steps.some((step) => !step.valid);
 }
