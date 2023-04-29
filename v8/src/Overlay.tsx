@@ -69,7 +69,6 @@ export function Overlay() {
       }
 
       if (!overridingActive) {
-        console.log("INPUT setting active");
         setActive(false);
       }
     },
