@@ -1,6 +1,24 @@
-import React, { PropsWithChildren } from "react";
-import { Flex, TextInput, Textarea, CopyButton, Button } from "@mantine/core";
+import React, { PropsWithChildren, PropsWithoutRef } from "react";
+import {
+  Flex,
+  TextInput,
+  Textarea,
+  CopyButton,
+  Button,
+  createStyles,
+} from "@mantine/core";
 import { modals } from "@mantine/modals";
+
+const useStyles = createStyles((theme) => ({
+  Paragraph: {
+    marginBottom: "1rem",
+  },
+  Image: {
+    width: "100%",
+    height: "auto",
+    marginBottom: "4rem",
+  },
+}));
 
 const commonModalOptions = {
   closeOnConfirm: false,
@@ -8,46 +26,66 @@ const commonModalOptions = {
   onClose: () => {
     modals.closeAll();
   },
+  styles(theme: any, params: any, context: any) {
+    return {
+      title: {
+        fontSize: "20px",
+        fontWeight: 700,
+      },
+    };
+  },
 };
 
 function PublishSection({ children }: PropsWithChildren<{}>) {
   return (
-    <Flex direction="row" p="1rem">
+    <>
+      {/* <Flex direction="row" p="1rem"> */}
       {children}
-    </Flex>
+      {/* </Flex> */}
+    </>
   );
 }
 
 function PublishModalPrerequisites() {
   return (
     <PublishSection>
-      <p>
-        Create a new Browser Source in OBS. Make sure that "Shutdown Source when
-        not visible" is unchecked".
-      </p>
-      <img src="https://placekitten.com/200/200" />
+      <Paragraph>These docs assume the usage of OBS.</Paragraph>
+      <Paragraph>
+        Other tools like XSplit should still work as long as they have a Source
+        similar to the BrowserSource in OBS.
+      </Paragraph>
     </PublishSection>
   );
 }
 
 function PublishModalCreateBrowserSource() {
   return (
-    <>
-      <p>
-        Create a new Browser Source in OBS. Make sure that "Shutdown Source when
-        not visible" is unchecked".
-      </p>
-      <img src="https://placekitten.com/200/200" />
-    </>
+    <PublishSection>
+      <Paragraph>Create a new Browser Source in OBS.</Paragraph>
+      <Image src="/publish/add-browser-source.png" />
+
+      <Paragraph>
+        Make sure that "Shutdown Source when not visible" is unchecked.
+      </Paragraph>
+      <Image src="/publish/browser-source-shutdown.png" />
+    </PublishSection>
   );
 }
 
 function PublishModalCopyUrl({ url }: { url: string }) {
   return (
-    <>
-      <p>Copy the following URL into OBS</p>
-      <img src="https://placekitten.com/200/200" />
+    <PublishSection>
+      <Paragraph>
+        You should see a modal window for configuring the Browser Source.
+      </Paragraph>
+      <Image src="/publish/browser-source-settings.png" />
+      <Paragraph>
+        If you don't, you can open it by right clicking the Browser Source in
+        the Sources pane and clicking Properties.
+      </Paragraph>
+      <Image src="/publish/source-properties.png" />
 
+      <Paragraph>Copy the following URL.</Paragraph>
       <CopyButton value={url}>
         {({ copied, copy }) => (
           <Flex align={"flex-end"}>
@@ -64,18 +102,17 @@ function PublishModalCopyUrl({ url }: { url: string }) {
           </Flex>
         )}
       </CopyButton>
-    </>
+
+      <Paragraph>Paste the URL into the OBS Browser Source settings.</Paragraph>
+      <Image src="/publish/paste-url.png" />
+    </PublishSection>
   );
 }
 
 function PublishModalCopyCss({ css }: { css: string }) {
   return (
-    <>
-      <h2>Copy CSS</h2>
-      <p>
-        You will need to copy this css chunk into your OBS BrowserSource's
-        "Custom CSS" field.
-      </p>
+    <PublishSection>
+      <Paragraph>You will need to copy this CSS.</Paragraph>
 
       <CopyButton value={css}>
         {({ copied, copy }) => (
@@ -95,21 +132,26 @@ function PublishModalCopyCss({ css }: { css: string }) {
           </>
         )}
       </CopyButton>
-    </>
+
+      <Paragraph>
+        Clear out any text in the Custom CSS field and then paste the CSS copied
+        from above into your OBS Browser Source's "Custom CSS" field.
+      </Paragraph>
+      <Image src="/publish/paste-css.png" />
+    </PublishSection>
   );
 }
 
 function PublishModalNotes() {
   return (
-    <>
-      <p>
-        If you have issues getting the images to show up, you can try this. Turn
-        on "Shutdown Source when not visible". Close the config. Toggle
-        visibility of cmgTube until the images show up. Make sure to turn off
-        "Shutdown Source when not visible" to keep it working.
-      </p>
-      <img src="https://placekitten.com/200/200" />
-    </>
+    <PublishSection>
+      <Paragraph>
+        You should be up and running. If you have issues please try and post
+        them to Github. We may eventually create a Discord for this project,
+        too.
+      </Paragraph>
+      <Image src="/publish/high-five.gif" />
+    </PublishSection>
   );
 }
 
@@ -137,7 +179,7 @@ export function showPublishModals(url: string, css: string) {
                 onConfirm: () => {
                   modals.openConfirmModal({
                     ...commonModalOptions,
-                    title: "Notes/Issues",
+                    title: "That's it!",
                     children: <PublishModalNotes />,
                     labels: { confirm: "Done", cancel: "Cancel" },
                     onConfirm: () => {
@@ -152,4 +194,15 @@ export function showPublishModals(url: string, css: string) {
       });
     },
   });
+}
+
+function Paragraph({ children }: PropsWithChildren<{}>) {
+  const { classes } = useStyles();
+
+  return <p className={classes.Paragraph}>{children}</p>;
+}
+
+function Image({ src }: PropsWithoutRef<{ src: string }>) {
+  const { classes } = useStyles();
+  return <img className={classes.Image} src={src} />;
 }

@@ -18,6 +18,8 @@ import {
   TextInput,
   MediaQuery,
   getBreakpointValue,
+  Text,
+  createStyles,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { z, AnyZodObject } from "zod";
@@ -37,6 +39,7 @@ import { ValidationTimeline } from "./components/App/ValidationTimeline";
 import { InstanceForm, DEFAULT_INSTANCE } from "./components/App/InstanceForm";
 import { showPublishModals } from "./components/App/Publish";
 import { Preview } from "./components/App/Preview";
+import { Logo } from "./components/App/Logo";
 
 import OBSWebSocket from "obs-websocket-js";
 const obs = new OBSWebSocket();
@@ -63,6 +66,12 @@ interface AppAsset {
   name: string;
 }
 
+const useStyles = createStyles((theme) => ({
+  title: {
+    fontFamily: "Abril Fatface",
+  },
+}));
+
 interface AppConfig {
   assets: AvatarAsset[];
   sources: string[];
@@ -84,6 +93,8 @@ export function App() {
   const [connected, setConnected] = useState(false);
   const [selectedInstance, setSelectedInstance] = useState(DEFAULT_INSTANCE);
   const previousToken = useRef(obsToken);
+
+  const { classes } = useStyles();
 
   const localStorage = useContext(LocalStorageContext);
 
@@ -252,7 +263,22 @@ export function App() {
   );
 
   return (
-    <MantineProvider withGlobalStyles withNormalizeCSS>
+    <MantineProvider
+      withGlobalStyles
+      withNormalizeCSS
+      theme={{
+        components: {
+          Modal: {
+            styles: (theme, params: any, { variant }) => ({
+              title: {
+                fontSize: "24px",
+                fontWeight: 700,
+              },
+            }),
+          },
+        },
+      }}
+    >
       <AppShell
         navbarOffsetBreakpoint="sm"
         navbar={
@@ -273,7 +299,17 @@ export function App() {
         header={
           <Header height={70} p="xs">
             <Flex direction="row" align="center" justify="space-between">
-              <h1>cmgTuber</h1>
+              <Flex direction="row" align="center" justify="center" px="0.5rem">
+                <Logo />
+                <Text
+                  ml={"0.5rem"}
+                  size={"32px"}
+                  weight={700}
+                  className={classes.title}
+                >
+                  maskd
+                </Text>
+              </Flex>
               <Button
                 disabled={!connected || !isValid(validity)}
                 onClick={() => {
