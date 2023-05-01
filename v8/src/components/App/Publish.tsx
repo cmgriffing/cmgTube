@@ -36,25 +36,26 @@ const commonModalOptions = {
   },
 };
 
-function PublishSection({ children }: PropsWithChildren<{}>) {
+function PublishSection({
+  row,
+  children,
+}: PropsWithChildren<{ row?: boolean }>) {
   return (
     <>
-      {/* <Flex direction="row" p="1rem"> */}
-      {children}
+      {!row && <>{children}</>}
       {/* </Flex> */}
+      {row && (
+        <Flex
+          direction="row"
+          mb="3rem"
+          align={"center"}
+          justify={"center"}
+          gap={"1rem"}
+        >
+          {children}
+        </Flex>
+      )}
     </>
-  );
-}
-
-function PublishModalPrerequisites() {
-  return (
-    <PublishSection>
-      <Paragraph>These docs assume the usage of OBS.</Paragraph>
-      <Paragraph>
-        Other tools like XSplit should still work as long as they have a Source
-        similar to the BrowserSource in OBS.
-      </Paragraph>
-    </PublishSection>
   );
 }
 
@@ -85,23 +86,18 @@ function PublishModalCopyUrl({ url }: { url: string }) {
       </Paragraph>
       <Image src="/publish/source-properties.png" />
 
-      <Paragraph>Copy the following URL.</Paragraph>
-      <CopyButton value={url}>
-        {({ copied, copy }) => (
-          <Flex align={"flex-end"}>
-            <TextInput
-              label="OBS BrowserSource URL"
-              value={url}
-              readOnly
-              onClick={copy}
-              onFocus={copy}
-            />
-            <Button color={copied ? "teal" : "blue"} onClick={copy}>
-              {copied ? "Copied" : "Copy"}
-            </Button>
-          </Flex>
-        )}
-      </CopyButton>
+      <PublishSection row>
+        <p>Copy the URL.</p>
+        <CopyButton value={url}>
+          {({ copied, copy }) => (
+            <Flex align={"flex-end"}>
+              <Button color={copied ? "teal" : "blue"} onClick={copy}>
+                {copied ? "Copied" : "Copy"}
+              </Button>
+            </Flex>
+          )}
+        </CopyButton>
+      </PublishSection>
 
       <Paragraph>Paste the URL into the OBS Browser Source settings.</Paragraph>
       <Image src="/publish/paste-url.png" />
@@ -112,26 +108,19 @@ function PublishModalCopyUrl({ url }: { url: string }) {
 function PublishModalCopyCss({ css }: { css: string }) {
   return (
     <PublishSection>
-      <Paragraph>You will need to copy this CSS.</Paragraph>
+      <PublishSection row>
+        <p>Copy the CSS.</p>
 
-      <CopyButton value={css}>
-        {({ copied, copy }) => (
-          <>
-            <Button color={copied ? "teal" : "blue"} onClick={copy}>
-              {copied ? "Copied CSS" : "Copy CSS"}
-            </Button>
-            <Textarea
-              label="OBS BrowserSource CSS"
-              value={css}
-              readOnly
-              onClick={copy}
-              onFocus={copy}
-              maxRows={4}
-              minRows={4}
-            />
-          </>
-        )}
-      </CopyButton>
+        <CopyButton value={css}>
+          {({ copied, copy }) => (
+            <>
+              <Button color={copied ? "teal" : "blue"} onClick={copy}>
+                {copied ? "Copied CSS" : "Copy CSS"}
+              </Button>
+            </>
+          )}
+        </CopyButton>
+      </PublishSection>
 
       <Paragraph>
         Clear out any text in the Custom CSS field and then paste the CSS copied
@@ -158,34 +147,26 @@ function PublishModalNotes() {
 export function showPublishModals(url: string, css: string) {
   modals.openConfirmModal({
     ...commonModalOptions,
-    title: "Prerequisites",
-    children: <PublishModalPrerequisites />,
-    labels: { confirm: "Next", cancel: "Cancel" },
+    title: "Create BrowserSource",
+    children: <PublishModalCreateBrowserSource />,
     onConfirm: () => {
       modals.openConfirmModal({
         ...commonModalOptions,
-        title: "Create BrowserSource",
-        children: <PublishModalCreateBrowserSource />,
+        title: "Copy URL",
+        children: <PublishModalCopyUrl url={url} />,
         onConfirm: () => {
           modals.openConfirmModal({
             ...commonModalOptions,
-            title: "Copy URL",
-            children: <PublishModalCopyUrl url={url} />,
+            title: "Copy CSS",
+            children: <PublishModalCopyCss css={css} />,
             onConfirm: () => {
               modals.openConfirmModal({
                 ...commonModalOptions,
-                title: "Copy CSS",
-                children: <PublishModalCopyCss css={css} />,
+                title: "That's it!",
+                children: <PublishModalNotes />,
+                labels: { confirm: "Done", cancel: "Cancel" },
                 onConfirm: () => {
-                  modals.openConfirmModal({
-                    ...commonModalOptions,
-                    title: "That's it!",
-                    children: <PublishModalNotes />,
-                    labels: { confirm: "Done", cancel: "Cancel" },
-                    onConfirm: () => {
-                      modals.closeAll();
-                    },
-                  });
+                  modals.closeAll();
                 },
               });
             },
