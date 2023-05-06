@@ -53,6 +53,8 @@ import "./App.css";
 
 import * as SouthParkCanadian from "./components/Avatars/SouthParkCanadian";
 
+const THEMES = [SouthParkCanadian];
+
 const DEFAULT_CONFIG: AppConfig = {
   assets: [],
   sources: [],
@@ -89,10 +91,10 @@ export function App() {
   const [sources, setSources] = useState<string[]>([]);
   const [sourceList, setSourceList] = useState<string[]>([]);
   const [instanceList, setInstanceList] = useState<string[]>([]);
-  const [status, setStatus] = useState("");
   const [connected, setConnected] = useState(false);
   const [selectedInstance, setSelectedInstance] = useState(DEFAULT_INSTANCE);
   const previousToken = useRef(obsToken);
+  const [customCss, setCustomCss] = useState("");
 
   const { classes } = useStyles();
 
@@ -100,12 +102,10 @@ export function App() {
 
   useAppObsCallbacks(obs, {
     [OBS_EVENTS.ConnectionClosed]: async () => {
-      setStatus("Not connected to OBS");
       setConnected(false);
     },
 
     [OBS_EVENTS.Identified]: async () => {
-      setStatus("Connected to OBS");
       setConnected(true);
       const response = await obs.call("GetInputList");
       setSourceList(
@@ -148,6 +148,11 @@ export function App() {
       return false;
     }
 
+    const instanceNames = (await localStorage.keys()).filter(
+      (key) => !!key.trim()
+    );
+    setInstanceList(instanceNames);
+
     const config = {
       ...DEFAULT_CONFIG,
       ...(((await localStorage
@@ -156,14 +161,7 @@ export function App() {
         DEFAULT_CONFIG),
     };
 
-    if (config.obsToken) {
-      setObsToken(config.obsToken);
-    }
-
-    const instanceNames = (await localStorage.keys()).filter(
-      (key) => !!key.trim()
-    );
-    setInstanceList(instanceNames);
+    setObsToken(config.obsToken);
 
     setSources(config.sources || []);
     setAssets(config?.assets || []);
@@ -190,7 +188,7 @@ export function App() {
           setLoading(false);
         });
       } else {
-        setStatus("No OBS Authorization found");
+        console.log("No OBS auth found");
       }
     }
   }, [obsToken]);
@@ -203,11 +201,11 @@ export function App() {
     async (instanceName: string, config: AppConfig) => {
       try {
         if (instanceName) {
-          console.log(
-            `Writing instance, ${instanceName}, with config:
-              ${JSON.stringify(config, null, 2)}
-            `
-          );
+          // console.log(
+          //   `Writing instance, ${instanceName}, with config:
+          //     ${JSON.stringify(config, null, 2)}
+          //   `
+          // );
           await localStorage.setItem(instanceName, config);
         }
       } catch (e: any) {
@@ -218,15 +216,34 @@ export function App() {
   );
 
   useEffect(() => {
-    console.log("Persisting");
-    persist(selectedInstance, {
-      obsToken,
-      assets,
-      sources,
-      currentThemeId,
-      currentPresetId,
-    });
-  }, [obsToken, sources, assets, currentThemeId, currentPresetId]);
+    if (!loading) {
+      persist(selectedInstance, {
+        obsToken,
+        assets,
+        sources,
+        currentThemeId,
+        currentPresetId,
+      });
+
+      const selectedTheme = THEMES.find(
+        (theme) => theme?.themeMetadata.id === currentThemeId
+      );
+
+      setTimeout(() => {
+        setCustomCss(`
+          :root {
+            --obs-token: "${obsToken}";
+            --obs-source-1: "Mic";
+            ${sources.map(
+              (source, index) => `--obs-source-${index + 1}: "${source}";\n`
+            )}
+          }
+
+        ${selectedTheme?.generateCss(assets)}
+      `);
+      }, 3000);
+    }
+  }, [obsToken, sources, assets, currentThemeId, currentPresetId, loading]);
 
   // TODO: Refactor away from nested Promises
   // async function obsAdjustSensitivity(sourceName: string) {
@@ -292,7 +309,11 @@ export function App() {
               <ValidationTimeline steps={validity} />
             </Box>
 
-            <Preview themeId={currentThemeId} presetId={currentPresetId} />
+            <Preview
+              themeId={currentThemeId}
+              presetId={currentPresetId}
+              customCss={customCss}
+            />
           </Navbar>
         }
         padding="md"
@@ -315,17 +336,7 @@ export function App() {
                 onClick={() => {
                   showPublishModals(
                     `${window.location.toString()}/overlay`,
-                    `
-                      body { background-color: rgba(0,0,0,0); }
-
-                      ${sources.map(
-                        (source, index) => `
-                        --obs-source-${index + 1}: "${source}";
-                      `
-                      )}
-
-                      ${SouthParkCanadian.generateCss(assets)}
-                    `
+                    customCss
                   );
                 }}
               >
@@ -366,7 +377,7 @@ export function App() {
             <ThemeSelector
               currentThemeId={currentThemeId}
               currentPresetId={currentPresetId}
-              themes={[SouthParkCanadian]}
+              themes={THEMES}
               onThemeChanged={(theme) => {
                 setCurrentThemeId(theme?.themeMetadata.id || "");
               }}
@@ -404,7 +415,6 @@ export function App() {
                 setObsToken(newObsToken);
               }}
               onDisconnectClick={() => {
-                console.log("disconnected");
                 // TODO: Investigate why this doesn't work as expected.
                 // Shows empty page instead of disconnected state
                 setObsToken("");

@@ -28,6 +28,7 @@ export function ValidationTimeline({
       >
         {steps.map((item) => (
           <Timeline.Item
+            key={item.label}
             bullet={
               item.valid ? <Icon icon={checkIcon} width={12} /> : undefined
             }

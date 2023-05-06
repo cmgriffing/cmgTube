@@ -141,8 +141,8 @@ export function Assets({
                   value: "",
                 };
 
-                if (selectedNewAsset.config) {
-                  newAsset.config = selectedNewAsset.config;
+                if (selectedNewAsset?.config) {
+                  newAsset.config = selectedNewAsset?.config;
                 }
 
                 onAddAsset(newAsset);
@@ -212,8 +212,8 @@ export function Assets({
                 )}
               </FileButton>
 
-              {assetMetadataLookupTable[asset.name].config &&
-                assetMetadataLookupTable[asset.name].configComponent && (
+              {assetMetadataLookupTable[asset.name]?.config &&
+                assetMetadataLookupTable[asset.name]?.configComponent && (
                   <ActionIcon
                     variant="outline"
                     color="primary"
@@ -224,9 +224,9 @@ export function Assets({
                       icon={settingsIcon}
                       onClick={() => {
                         const Component =
-                          assetMetadataLookupTable[asset.name].configComponent;
+                          assetMetadataLookupTable[asset.name]?.configComponent;
 
-                        let newConfig = asset.config;
+                        let newConfig = asset?.config || {};
 
                         if (Component) {
                           modals.open({

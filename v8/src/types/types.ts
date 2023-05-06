@@ -56,3 +56,27 @@ export interface ValidationStep {
   valid: boolean;
   optional?: boolean;
 }
+
+export enum PostMessageType {
+  Active = "active",
+  Styles = "styles",
+}
+
+export interface BasePostMessage {
+  type: PostMessageType;
+  payload: Record<string, any>;
+}
+
+export interface ActivePostMessage extends BasePostMessage {
+  type: PostMessageType.Active;
+  payload: {
+    active: boolean;
+  };
+}
+
+export interface StylesPostMessage extends BasePostMessage {
+  type: PostMessageType.Styles;
+  payload: {
+    styles: string;
+  };
+}

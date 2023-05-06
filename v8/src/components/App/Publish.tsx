@@ -43,7 +43,6 @@ function PublishSection({
   return (
     <>
       {!row && <>{children}</>}
-      {/* </Flex> */}
       {row && (
         <Flex
           direction="row"

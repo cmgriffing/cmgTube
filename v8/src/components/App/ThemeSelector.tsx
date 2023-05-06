@@ -7,6 +7,8 @@ import paintIcon from "@iconify/icons-tabler/paint";
 
 import { AvatarModule, ThemeMetadata } from "../../types/types";
 
+const CUSTOM_PRESET: ThemeMetadata = { id: "", label: "Custom" };
+
 import { AppCard } from "./common/AppCard";
 
 interface ThemeSelectorProps {
@@ -42,7 +44,9 @@ export function ThemeSelector({
 
     setSelectedTheme(currentTheme);
     setSelectedPreset(
-      currentTheme?.themePresets.find((preset) => preset.id === currentPresetId)
+      currentTheme?.themePresets.find(
+        (preset) => preset.id === currentPresetId
+      ) || CUSTOM_PRESET
     );
   }, [currentThemeId, currentPresetId]);
 
@@ -68,8 +72,8 @@ export function ThemeSelector({
 
                 setSelectedTheme(newSelectedTheme);
                 onThemeChanged(newSelectedTheme);
-                setSelectedPreset(undefined);
-                onPresetChanged();
+                setSelectedPreset(CUSTOM_PRESET);
+                onPresetChanged(CUSTOM_PRESET);
               }}
             />
           </Box>
@@ -82,14 +86,17 @@ export function ThemeSelector({
                 searchable
                 nothingFound="No options"
                 value={selectedPreset?.id}
-                data={selectedTheme.themePresets.map((preset) => ({
-                  value: preset.id,
-                  label: preset.label,
-                }))}
+                data={[CUSTOM_PRESET, ...selectedTheme.themePresets].map(
+                  (preset) => ({
+                    value: preset.id,
+                    label: preset.label,
+                  })
+                )}
                 onChange={(selectedPresetId) => {
-                  const newSelectedPreset = selectedTheme.themePresets.find(
-                    (preset) => preset.id === selectedPresetId
-                  );
+                  const newSelectedPreset =
+                    selectedTheme.themePresets.find(
+                      (preset) => preset.id === selectedPresetId
+                    ) || CUSTOM_PRESET;
                   setSelectedPreset(newSelectedPreset);
                   onPresetChanged(newSelectedPreset);
                 }}

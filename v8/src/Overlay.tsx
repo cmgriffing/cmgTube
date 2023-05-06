@@ -9,8 +9,10 @@ import { useCssData } from "./hooks/use-css-data";
 import "./Overlay.css";
 import { useOverlayObsCallbacks } from "./hooks/use-obs-callbacks";
 import { OBS_EVENTS } from "./types/enums";
-import { ObsInput } from "./types/types";
+import { ObsInput, PostMessageType } from "./types/types";
 import { AvatarComponent as SouthParkCanadianComponent } from "./components/Avatars/SouthParkCanadian";
+
+const STYLES_ELEMENT_ID = "custom-styles";
 
 type AvatarType = "south-park-ca";
 
@@ -31,6 +33,7 @@ export function Overlay() {
     preset: string;
   }>();
   const [forcedUpdateTimestamp, setForcedUpdateTimestamp] = useState(0);
+  const [overriddenStyles, setOverriddenStyles] = useState("");
 
   const AvatarComponent =
     avatarMap[(overlayType as AvatarType) || "south-park-ca"] ||
@@ -134,12 +137,10 @@ export function Overlay() {
             }
           `;
 
-          const STYLE_ELEMENT_ID = "preset-style-element";
-
-          let styleElement = document.querySelector(`#${STYLE_ELEMENT_ID}`);
+          let styleElement = document.querySelector(`#${STYLES_ELEMENT_ID}`);
           if (!styleElement) {
             styleElement = document.createElement("style");
-            styleElement.id = STYLE_ELEMENT_ID;
+            styleElement.id = STYLES_ELEMENT_ID;
             document.head.appendChild(styleElement);
           }
 
@@ -165,8 +166,17 @@ export function Overlay() {
   useEffect(() => {
     // consider throttling this function
     const messageHandler = (event: any) => {
-      setActive(!!event.data.active);
-      setOverridingActive(!!event.data.active);
+      if (event.data.type === PostMessageType.Active) {
+        setActive(!!event.data.active);
+        setOverridingActive(!!event.data.active);
+      }
+
+      if (event.data.type === PostMessageType.Styles) {
+        setOverriddenStyles(event.data.styles);
+        setTimeout(() => {
+          setForcedUpdateTimestamp(Date.now());
+        }, 100);
+      }
     };
     window.addEventListener("message", messageHandler, false);
 
@@ -174,6 +184,19 @@ export function Overlay() {
       window.removeEventListener("message", messageHandler);
     };
   }, []);
+
+  useEffect(() => {
+    let stylesElement = document.getElementById(STYLES_ELEMENT_ID);
+    if (!stylesElement) {
+      stylesElement = document.createElement("style");
+      stylesElement.setAttribute("type", "text/css");
+      stylesElement.id = STYLES_ELEMENT_ID;
+      document.head.appendChild(stylesElement);
+    }
+
+    stylesElement.innerHTML = overriddenStyles;
+    setForcedUpdateTimestamp(Date.now());
+  }, [overriddenStyles]);
 
   return (
     <div className="overlay">

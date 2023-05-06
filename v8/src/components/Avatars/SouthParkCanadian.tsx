@@ -147,10 +147,15 @@ export function generateCss(assets: AvatarAsset[]): string {
   //     .join("\n")}
   // `;
 
+  const activeAsset = assets.find((asset) => asset.name === "active");
+
   const assetNameIndex: Record<string, number> = {};
 
   return `
     :root {
+
+      --images-active-slice-y: ${activeAsset?.config?.slicePointY || 0};
+
       ${assets
         .map((asset) => {
           if (asset.type === AvatarAssetType.Multiple) {
@@ -242,9 +247,9 @@ export function AvatarComponent(props: AvatarProps) {
 
         ctx = canvas.getContext("2d");
         const rawSliceY = parseInt(cssData.activeSliceY);
-        const slicePercentY = rawSliceY / 100;
+        let slicePercentY = rawSliceY / 100;
         if (isNaN(slicePercentY)) {
-          return;
+          slicePercentY = 0;
         }
         if (ctx) {
           // draw top half
@@ -270,6 +275,14 @@ export function AvatarComponent(props: AvatarProps) {
             random,
           });
         }
+      };
+      img.onerror = function () {
+        setConfig({
+          idle: cssData.idle,
+          activeTop: "",
+          activeBottom: "",
+          random,
+        });
       };
       img.src = cssData.active;
     }
